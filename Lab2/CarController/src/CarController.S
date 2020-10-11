@@ -27,7 +27,6 @@ poll:
     addi s1, s1, 1
     srl a1, t0, 27
 
-
     li t0, 0x0fff
     and s3, t0, s3
 
@@ -36,9 +35,7 @@ poll:
     sll t1, t1, 12
     or s3, t1, s3
 
-
     sw s3, 0(x29)           # write to 7seg-reg
-
 
     beq a1, s2, stop # 0000
     add s2, s2, 1
@@ -71,12 +68,12 @@ poll:
     beq a1, s2, left1 # 1110
     add s2, s2, 1
     beq a1, s2, stop # 1111
+    li s2, 0x0000
+    j poll
 
-
-
-    li  a0, GPIO_LEDs
-    srl t0, t0, 16
-    sw  t0, 0(a0)               # Write the LEDs
+  #  li  a0, GPIO_LEDs
+  #  srl t0, t0, 16
+  #  sw  t0, 0(a0)               # Write the LEDs
 
 stop:
     # li s2, 0x0
@@ -88,42 +85,31 @@ stop:
     beq zero, zero, poll
 
 forward:
-    li s2, 0x0
+    li s2, 0x0  # reset case register
+
+    li s4, 0xa # turn off bits
     li t0, 0x20000
-    blt s1, t0, foff
+    blt s1, t0, fon # stay on if below t0 value
     li t0, 0x40000
-    blt s1, t0, fon
+    blt s1, t0, poll # stay on if below higher t0 value
     li s1, 0x0
     beq zero, zero, poll
-
-foff:
-    # li t0, 0xa000
-    # sw t0, 0(x29)
-    li s4, 0xb
-    beq zero, zero, poll
-
 fon:
-    # li t0, 0xb000 # turn on segment A
     li s4, 0xb
-    # sw t0, 0(x29)
     beq zero, zero, poll
 
 reverse:
-    li s2, 0x0
+    li s2, 0x0  # reset case register
+
+    li s4, 0xa # turn off bits
     li t0, 0x20000
-    blt s1, t0, roff
+    blt s1, t0, ron # stay on if below t0 value
     li t0, 0x40000
-    blt s1, t0, ron
+    blt s1, t0, poll # stay on if below higher t0 value
     li s1, 0x0
     beq zero, zero, poll
-roff:
-    li t0, 0xa000
-    sw t0, 0(x29)
-    beq zero, zero, poll
-
 ron:
-    li t0, 0xd000 # turn on segment A
-    sw t0, 0(x29)
+    li s4, 0xd
     beq zero, zero, poll
 
 right1:
@@ -157,28 +143,31 @@ left2:
 display_dec: # does the math to increment from 0-360, instead of 0-0xFFF
     addi s3, s3, -0x1
 
-    li t1, 0xe
-    blt s4, t1, num_inc   # if indicator is != f then go to next step
-    li s4, 0xa            # if indicator is = f then, reset to a  
-
+    li t1, 0xb
+    blt t1, s4, num_dec   # 
+    li s4, 0xf           # 
     # isolate and check lsB
 num_dec:
-    addi s4, s4, 0x1
-    andi t0, s3, 0xF
-    li t1, 0xa
-    bne t1, t0, comp_out # if the value of the lsB is not eql to 0xa, then go display the ouput
-    addi s3, s3, -0xa # if the value is 0xa then set lsB to 0
-    addi s3, s3, 0x010 # increment the next digit
+    addi s4, s4, -0x1
+    andi t0, s3, 0xf
+    li t1, 0xf
+    bne t1, t0, poll # if the value of the lsB is not eql to 0xa, then go display the ouput
+    addi s3, s3, -0x6 # if the value is 0xf then set lsB to 0
+ #   addi s3, s3, -0x010 # increment the next digit
     
     # isolate and check 2nd lsB
     andi t0, s3, 0x0F0
-    li t1, 0xa0
-    bne t1, t0, comp_out
-    addi s3, s3, -0xa0
+    li t1, 0xf0
+    bne t1, t0, poll
+    addi s3, s3, -0x60
     # increment 3rd lsB if 2nd byte overflowed
-    addi s3, s3, 0x100
+ #   addi s3, s3, -0x100
 
-    bne zero, zero, comp_out
+    li t1, 0xf00
+    and t0, s3, t1
+    bne t1, t0, poll
+    li s3, 0x359
+    beq zero, zero, poll
 
 display_inc: # does the math to increment from 0-360, instead of 0-0xFFF
     addi s3, s3, 0x1
@@ -204,7 +193,7 @@ num_inc:
     # increment 3rd lsB if 2nd byte overflowed
     addi s3, s3, 0x100
 
-    bne zero, zero, comp_out
+    beq zero, zero, comp_out
     
 
 
