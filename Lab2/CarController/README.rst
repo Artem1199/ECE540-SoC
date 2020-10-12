@@ -1,3 +1,7 @@
+#### Necessary .v files not included to avoid plagiarism. 
+
+
+
 ..  Copyright 2014-present PlatformIO <contact@platformio.org>
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -8,6 +12,8 @@
     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
     See the License for the specific language governing permissions and
     limitations under the License.
+
+### 
 
 How to build PlatformIO based project
 =====================================
@@ -21,13 +27,13 @@ How to build PlatformIO based project
 
     # Change directory to example
     > cd platform-chipsalliance/examples/native-blink_asm
-
+    
     # Build project
     > platformio run
-
+    
     # Upload firmware
     > platformio run --target upload
-
+    
     # Upload bitstream
     > platformio run --target program_fpga
     
@@ -39,9 +45,9 @@ How to build PlatformIO based project
     
     # Generate bistream for SweRV Core using Xilinx Vivado
     > platformio run --target generate_bitstream
-
+    
     # Upload firmware for the specific environment
     > platformio run -e swervolf_nexys --target upload
-
+    
     # Clean build files
     > platformio run --target clean
