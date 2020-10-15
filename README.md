@@ -1,6 +1,6 @@
 # ECE540-SoC
 
-![NexysA7](https://github.com/Artem1199/ECE540-SoC/blob/main/Lab2/external-content.duckduckgo.com.png)
+![NexysA7](https://github.com/Artem1199/ECE540-SoC/blob/main/Lab2/Results/external-content.duckduckgo.com.png)
 
 System on chip class Projects.  SystemVerilog and RISC-V I32 assembly. 
 
